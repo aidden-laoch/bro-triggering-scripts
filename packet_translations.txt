@@ -1,0 +1,20 @@
+# This is a list of things that you want to be replaced in traffic
+# The syntax is as follows (use <<>> as the delimiter beween the text and replacement):
+# (string to replace) <<>> (what to replace it with)
+# 
+# Examples:
+#   - Replace the following line with the modified line
+#	Successful su for root by root<<>>Successful su for testuser1 by testuser2
+#
+#   - Replace all occurences of "root" with "testuser777"
+#	root<<>>testuser777
+#
+#   - Drop all messages containing the specified text
+#	root:root<<>>DROP
+#
+# The replacements are cumulative (multipel sed replacements will be used), so be sure
+# to place the search strings below in the order that you want them to be replaced.
+
+root:root<<>>DROP
+Successful su for root by root<<>>Successful su for testuser1 by testuser2
+root<<>>testuser777
